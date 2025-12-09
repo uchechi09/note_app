@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:note_app/models/note.dart';
 import 'package:note_app/utils/constant.dart';
-//import 'package:intl/intl.dart';
+import 'package:intl/intl.dart';
 
 class NoteCard extends StatelessWidget {
   final Note note;
@@ -16,18 +16,21 @@ class NoteCard extends StatelessWidget {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 
-    if (difference.inDays > 1) {
-      return '${difference.inDays} days ago';
-    } else if (difference.inDays == 1) {
-      return 'Yesterday';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours} hours ago';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes} minutes ago';
-    } else {
-      return 'Just now';
-    }
+    if (difference.inDays >= 7) {
+    // Show real date after 7 days
+      return DateFormat('dd MMM yyyy').format(dateTime);
+  } else if (difference.inDays > 1) {
+    return '${difference.inDays} days ago';
+  } else if (difference.inDays == 1) {
+    return 'Yesterday';
+  } else if (difference.inHours > 0) {
+    return '${difference.inHours} hours ago';
+  } else if (difference.inMinutes > 0) {
+    return '${difference.inMinutes} minutes ago';
+  } else {
+    return 'Just now';
   }
+}
 
   @override
   Widget build(BuildContext context) {

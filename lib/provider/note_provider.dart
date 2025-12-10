@@ -11,6 +11,9 @@ class NoteProvider extends ChangeNotifier {
     return _notesStream!;
   }
 
+
+  
+
   Future<void> addNote(Note note) async {
     try {
       await _firebaseService.addNote(note);

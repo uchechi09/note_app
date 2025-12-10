@@ -13,6 +13,10 @@ Note _$NoteFromJson(Map<String, dynamic> json) => Note(
   color: json['color'] as String,
   createdAt: DateTime.parse(json['createdAt'] as String),
   updatedAt: DateTime.parse(json['updatedAt'] as String),
+  isFavourite: json['isFavourite'] as bool? ?? false,
+  reminder: json['reminder'] == null
+      ? null
+      : DateTime.parse(json['reminder'] as String),
 );
 
 Map<String, dynamic> _$NoteToJson(Note instance) => <String, dynamic>{
@@ -22,4 +26,6 @@ Map<String, dynamic> _$NoteToJson(Note instance) => <String, dynamic>{
   'color': instance.color,
   'createdAt': instance.createdAt.toIso8601String(),
   'updatedAt': instance.updatedAt.toIso8601String(),
+  'isFavourite': instance.isFavourite,
+  'reminder': instance.reminder?.toIso8601String(),
 };

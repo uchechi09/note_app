@@ -9,6 +9,8 @@ class Note{
   final String color;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final bool isFavourite;
+  final DateTime? reminder;
 
   Note({
     required this.id,
@@ -17,6 +19,8 @@ class Note{
     required this.color,
     required this.createdAt,
     required this.updatedAt,
+    this.isFavourite = false,
+    this.reminder,
   });
 
 factory Note.fromJson(Map<String, dynamic> json) => _$NoteFromJson(json);
@@ -30,6 +34,8 @@ Map<String, dynamic> toJson() => _$NoteToJson(this);
     String? color,
     DateTime? createdAt,
     DateTime? updatedAt,
+    bool? isFavourite,
+    DateTime? reminder,
   }) {
     return Note(
       id: id ?? this.id,
@@ -38,6 +44,8 @@ Map<String, dynamic> toJson() => _$NoteToJson(this);
       color: color ?? this.color,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      isFavourite: isFavourite ?? this.isFavourite,
+      reminder: reminder ?? this.reminder,
     );
   }
 

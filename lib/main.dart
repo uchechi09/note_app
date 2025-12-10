@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:note_app/pages/note_list_page.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:note_app/provider/note_filter_provider.dart';
 import 'package:note_app/provider/theme_provider.dart';
 import 'firebase_options.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => NoteProvider()),
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(create: (context) => NoteFilterProvider()),
       ],
       // Use a Consumer to access the ThemeProvider state
       child: Consumer<ThemeProvider>(

@@ -17,6 +17,7 @@ Note _$NoteFromJson(Map<String, dynamic> json) => Note(
   reminder: json['reminder'] == null
       ? null
       : DateTime.parse(json['reminder'] as String),
+  notificationId: (json['notificationId'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$NoteToJson(Note instance) => <String, dynamic>{
@@ -28,4 +29,5 @@ Map<String, dynamic> _$NoteToJson(Note instance) => <String, dynamic>{
   'updatedAt': instance.updatedAt.toIso8601String(),
   'isFavourite': instance.isFavourite,
   'reminder': instance.reminder?.toIso8601String(),
+  'notificationId': instance.notificationId,
 };

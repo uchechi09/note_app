@@ -157,23 +157,6 @@ class _NoteListPageState extends State<NoteListPage> {
     );
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   Container _buildFloatingButton(BuildContext context) {
     return Container(
       height: 70,

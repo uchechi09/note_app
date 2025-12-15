@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 
 class CreateEditNotePage extends StatefulWidget {
   final Note? note;
+
   const CreateEditNotePage({super.key, this.note});
 
   @override
@@ -33,8 +34,7 @@ class _CreateEditNotePageState extends State<CreateEditNotePage> {
       _isFavourite = widget.note!.isFavourite;
       _reminder = widget.note!.reminder;
     } else {
-      _selectedColor =
-          AppConstants.getHexFromColor(AppConstants.noteColors[0]);
+      _selectedColor = AppConstants.getHexFromColor(AppConstants.noteColors[0]);
     }
   }
 
@@ -45,6 +45,7 @@ class _CreateEditNotePageState extends State<CreateEditNotePage> {
     super.dispose();
   }
 
+  // Pick reminder
   Future<void> _pickReminder() async {
     final date = await showDatePicker(
       context: context,
@@ -70,9 +71,13 @@ class _CreateEditNotePageState extends State<CreateEditNotePage> {
         time.hour,
         time.minute,
       );
+
+      // Important: reminder means favourite ON
+      _isFavourite = true;
     });
   }
 
+  // Save note
   Future<void> _saveNote() async {
     if (_contentController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -93,7 +98,7 @@ class _CreateEditNotePageState extends State<CreateEditNotePage> {
         color: _selectedColor,
         updatedAt: DateTime.now(),
         isFavourite: _isFavourite,
-        reminder: _isFavourite ? _reminder : null,
+        reminder: _reminder, // ALWAYS save reminder
       );
 
       await provider.updateNote(newNote);
@@ -106,7 +111,8 @@ class _CreateEditNotePageState extends State<CreateEditNotePage> {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         isFavourite: _isFavourite,
-        reminder: _isFavourite ? _reminder : null,
+        reminder: _reminder,
+        notificationId: null,
       );
 
       await provider.addNote(newNote);
@@ -122,7 +128,7 @@ class _CreateEditNotePageState extends State<CreateEditNotePage> {
       appBar: AppBar(
         backgroundColor: Colors.white70,
         actions: [
-          // ⭐ Favorite toggle
+          // Toggle favourite
           IconButton(
             icon: Icon(
               _isFavourite ? Icons.star : Icons.star_border,
@@ -132,19 +138,17 @@ class _CreateEditNotePageState extends State<CreateEditNotePage> {
             onPressed: () {
               setState(() {
                 _isFavourite = !_isFavourite;
-                if (!_isFavourite) _reminder = null;
               });
             },
           ),
 
-          // ⏰ Reminder button (only if favourite)
-          if (_isFavourite)
-            IconButton(
-              icon: const Icon(Icons.alarm, color: Colors.pink, size: 26),
-              onPressed: _pickReminder,
-            ),
+          // Add reminder
+          IconButton(
+            icon: const Icon(Icons.alarm, color: Colors.pink, size: 26),
+            onPressed: _pickReminder,
+          ),
 
-          // ✔ Save button
+          // Save note
           IconButton(
             onPressed: _saveNote,
             icon: const Icon(Icons.check, color: Colors.black87),
@@ -157,9 +161,7 @@ class _CreateEditNotePageState extends State<CreateEditNotePage> {
           ColorSelector(
             selectedColor: _selectedColor,
             onColorSelected: (color) {
-              setState(() {
-                _selectedColor = color;
-              });
+              setState(() => _selectedColor = color);
             },
           ),
 
@@ -213,8 +215,10 @@ class _CreateEditNotePageState extends State<CreateEditNotePage> {
                       border: InputBorder.none,
                     ),
                     maxLines: null,
-                    style:
-                        const TextStyle(fontSize: 18, color: Colors.black87),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: Colors.black87,
+                    ),
                   ),
                 ],
               ),

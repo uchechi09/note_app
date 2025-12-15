@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'note.g.dart';
 @JsonSerializable()
-class Note{
+class Note {
   final String id;
   final String title;
   final String content;
@@ -11,6 +11,7 @@ class Note{
   final DateTime updatedAt;
   final bool isFavourite;
   final DateTime? reminder;
+  final int? notificationId; // <-- REQUIRED
 
   Note({
     required this.id,
@@ -21,12 +22,12 @@ class Note{
     required this.updatedAt,
     this.isFavourite = false,
     this.reminder,
+    this.notificationId, // <-- REQUIRED
   });
 
-factory Note.fromJson(Map<String, dynamic> json) => _$NoteFromJson(json);
-Map<String, dynamic> toJson() => _$NoteToJson(this);
+  factory Note.fromJson(Map<String, dynamic> json) => _$NoteFromJson(json);
+  Map<String, dynamic> toJson() => _$NoteToJson(this);
 
- // CopyWith method for updating notes
   Note copyWith({
     String? id,
     String? title,
@@ -36,6 +37,7 @@ Map<String, dynamic> toJson() => _$NoteToJson(this);
     DateTime? updatedAt,
     bool? isFavourite,
     DateTime? reminder,
+    int? notificationId, // <-- REQUIRED
   }) {
     return Note(
       id: id ?? this.id,
@@ -46,9 +48,7 @@ Map<String, dynamic> toJson() => _$NoteToJson(this);
       updatedAt: updatedAt ?? this.updatedAt,
       isFavourite: isFavourite ?? this.isFavourite,
       reminder: reminder ?? this.reminder,
+      notificationId: notificationId ?? this.notificationId, // <-- REQUIRED
     );
   }
-
-
 }
-

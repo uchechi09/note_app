@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:note_app/pages/note_detail_page.dart';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -13,11 +14,11 @@ import 'provider/note_provider.dart';
 import 'provider/theme_provider.dart';
 import 'provider/note_filter_provider.dart';
 
-// Notification plugin instance
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 final FlutterLocalNotificationsPlugin notifications =
     FlutterLocalNotificationsPlugin();
 
-// Load timezone data
 Future<void> _safeInitializeTimezones() async {
   try {
     tz.initializeTimeZones();
@@ -25,17 +26,35 @@ Future<void> _safeInitializeTimezones() async {
   } catch (_) {}
 }
 
-// Initialize local notifications
 Future<void> initNotifications() async {
   await _safeInitializeTimezones();
 
-  const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+  const android = AndroidInitializationSettings('ic_notification');
   const ios = DarwinInitializationSettings();
 
   final settings = InitializationSettings(android: android, iOS: ios);
-  await notifications.initialize(settings);
 
-  // Create Android notification channel
+  await notifications.initialize(
+    settings,
+    // onDidReceiveNotificationResponse: (response) {
+    //   final noteId = response.payload;
+    //   if (noteId != null) {
+    //     _openNoteFromNotification(noteId);
+    //   }
+    // },
+  );
+
+  final launchDetails = await notifications.getNotificationAppLaunchDetails();
+
+  if (launchDetails?.didNotificationLaunchApp ?? false) {
+    final noteId = launchDetails!.notificationResponse?.payload;
+    if (noteId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _openNoteFromNotification(noteId);
+      });
+    }
+  }
+
   await notifications
       .resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin
@@ -50,21 +69,22 @@ Future<void> initNotifications() async {
       );
 }
 
-// Schedule reminder with timezone support
+void _openNoteFromNotification(String noteId) {
+  navigatorKey.currentState?.push(
+    MaterialPageRoute(builder: (_) => NoteDetailPage(noteId: noteId)),
+  );
+}
+
 Future<void> scheduleReminder(
   int notifId,
   DateTime dateTime,
   String title,
-  String body,
-) async {
-  final tz.TZDateTime tzTime =
-      tz.TZDateTime.from(dateTime, tz.local);
-
-  debugPrint('====================');
-  debugPrint('NOW     : ${tz.TZDateTime.now(tz.local)}');
-  debugPrint('REMINDER: $tzTime');
-  debugPrint('OFFSET  : ${tzTime.timeZoneOffset}');
-  debugPrint('====================');
+  String body, {
+  required String payload,
+  required DateTimeComponents repeatType,
+}) async {
+  final tz.TZDateTime tzTime = tz.TZDateTime.from(dateTime, tz.local);
+  if (dateTime.isBefore(DateTime.now())) return;
 
   await notifications.zonedSchedule(
     notifId,
@@ -77,16 +97,17 @@ Future<void> scheduleReminder(
         'Reminders',
         importance: Importance.max,
         priority: Priority.high,
+        icon: 'ic_notification',
         playSound: true,
         enableVibration: true,
       ),
     ),
     androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-    matchDateTimeComponents: null,
+    matchDateTimeComponents: repeatType,
+    payload: payload,
   );
 }
 
-// Cancel reminder by ID
 Future<void> cancelReminder(int id) async {
   await notifications.cancel(id);
 }
@@ -94,13 +115,9 @@ Future<void> cancelReminder(int id) async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Firebase init
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Notification init
   await initNotifications();
-
-  // Permission request
   await Permission.notification.request();
 
   runApp(const MyApp());
@@ -120,11 +137,10 @@ class MyApp extends StatelessWidget {
       child: Consumer<ThemeProvider>(
         builder: (context, theme, _) {
           return MaterialApp(
+            navigatorKey: navigatorKey,
             title: 'My Notes',
             debugShowCheckedModeBanner: false,
             themeMode: theme.themeMode,
-
-            // Your original colors restored
             theme: ThemeData(
               brightness: Brightness.light,
               primarySwatch: Colors.pink,
@@ -137,7 +153,6 @@ class MyApp extends StatelessWidget {
               scaffoldBackgroundColor: const Color(0xFF121212),
               appBarTheme: const AppBarTheme(backgroundColor: Colors.black),
             ),
-
             home: const NoteListPage(),
           );
         },
